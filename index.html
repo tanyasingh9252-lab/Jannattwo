@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Friends | AI Companionship</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; overflow-x: hidden; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .gradient-text { background: linear-gradient(to right, #60a5fa, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .btn-primary { background: linear-gradient(to right, #3b82f6, #8b5cf6); transition: transform 0.2s; }
+        .btn-primary:active { scale: 0.95; }
+        .nav-item { transition: all 0.3s; }
+        .chat-bubble-ai { border-radius: 20px 20px 20px 0px; background: rgba(59, 130, 246, 0.2); }
+        .chat-bubble-user { border-radius: 20px 20px 0px 20px; background: rgba(139, 92, 246, 0.5); }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body x-data="vFriendsApp()">
+
+    <!-- ⚠️ MANDATORY DISCLAIMER OVERLAY -->
+    <div class="fixed top-0 left-0 w-full z-[100] bg-amber-500 text-black text-[10px] md:text-xs py-1 px-4 font-bold text-center uppercase tracking-wider">
+        Notice: All profiles are AI-generated fictional characters for entertainment only. No real people here.
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="pb-24 pt-8 px-4 max-w-md mx-auto min-h-screen">
+
+        <!-- 1. HOME PAGE -->
+        <section x-show="view === 'home'" x-cloak x-transition>
+            <div class="mt-8 mb-12 text-center">
+                <div class="inline-block p-3 rounded-full bg-blue-500/20 mb-4">
+                    <i data-lucide="sparkles" class="text-blue-400"></i>
+                </div>
+                <h1 class="text-4xl font-bold mb-2">Virtual <span class="gradient-text">Friends</span></h1>
+                <p class="text-slate-400 text-sm">Experience the future of social simulation.</p>
+            </div>
+
+            <!-- Location Simulation Card -->
+            <div class="glass rounded-3xl p-6 mb-6 text-center relative overflow-hidden">
+                <div class="absolute -top-4 -right-4 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl"></div>
+                <i data-lucide="map-pin" class="mx-auto mb-2 text-purple-400"></i>
+                <h2 class="text-xl font-semibold">Virtual Friends Near You</h2>
+                <p class="text-xs text-slate-400 mb-4">Simulating nearby fictional characters...</p>
+                
+                <div class="flex flex-col gap-3">
+                    <template x-for="f in nearbySimulated">
+                        <div class="flex items-center gap-3 bg-white/5 p-2 rounded-xl text-left">
+                            <img :src="f.img" class="w-10 h-10 rounded-full object-cover">
+                            <div>
+                                <p class="text-sm font-bold" x-text="f.name + ', ' + f.age"></p>
+                                <p class="text-[10px] text-blue-300" x-text="f.dist + ' simulated km away'"></p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <button @click="view = 'discover'" class="w-full mt-6 btn-primary py-3 rounded-2xl font-bold shadow-lg shadow-blue-500/20">
+                    Find New Friends
+                </button>
+            </div>
+
+            <!-- Ad Placeholder -->
+            <div class="w-full h-24 glass rounded-xl flex items-center justify-center text-slate-600 text-xs border-dashed border-2 border-slate-700">
+                Google AdSense Placeholder
+            </div>
+        </section>
+
+        <!-- 2. DISCOVER / PROFILES -->
+        <section x-show="view === 'discover'" x-cloak x-transition>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Discover AI</h2>
+                <span class="text-xs bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full border border-purple-500/30" x-text="'XP: ' + user.xp"></span>
+            </div>
+
+            <!-- Categories -->
+            <div class="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
+                <template x-for="cat in categories">
+                    <button 
+                        @click="filter = cat"
+                        :class="filter === cat ? 'bg-blue-600 text-white' : 'glass text-slate-400'"
+                        class="px-4 py-1.5 rounded-full text-xs whitespace-nowrap" 
+                        x-text="cat">
+                    </button>
+                </template>
+            </div>
+
+            <!-- Profile Cards Grid -->
+            <div class="grid grid-cols-1 gap-4">
+                <template x-for="char in filteredCharacters">
+                    <div class="glass rounded-2xl overflow-hidden relative">
+                        <img :src="char.img" class="w-full h-48 object-cover">
+                        <div class="absolute top-2 right-2 px-2 py-1 bg-black/60 backdrop-blur-md rounded text-[10px]" x-text="char.category"></div>
+                        <div class="p-4">
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <h3 class="text-lg font-bold" x-text="char.name + ', ' + char.age"></h3>
+                                    <p class="text-xs text-blue-300" x-text="char.personality"></p>
+                                </div>
+                                <button @click="openChat(char)" class="btn-primary p-2 rounded-xl">
+                                    <i data-lucide="message-circle" size="18"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </section>
+
+        <!-- 3. CHAT SYSTEM -->
+        <section x-show="view === 'chat'" x-cloak x-transition class="fixed inset-0 bg-slate-900 z-50 flex flex-col p-4">
+            <div class="flex items-center gap-4 mb-4">
+                <button @click="view = 'discover'"><i data-lucide="chevron-left"></i></button>
+                <div class="flex items-center gap-2">
+                    <img :src="activeChar?.img" class="w-10 h-10 rounded-full">
+                    <div>
+                        <p class="font-bold text-sm" x-text="activeChar?.name"></p>
+                        <p class="text-[10px] text-green-400">Online AI</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto space-y-4 pb-4">
+                <template x-for="msg in activeChatHistory">
+                    <div :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
+                        <div :class="msg.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'" class="max-w-[80%] p-3 text-sm" x-text="msg.text"></div>
+                    </div>
+                </template>
+                <div x-show="isTyping" class="text-[10px] text-slate-500 italic">AI Friend is thinking...</div>
+            </div>
+
+            <div class="mt-auto flex gap-2">
+                <input x-model="currentMsg" @keyup.enter="sendMessage()" type="text" placeholder="Type a message..." class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none focus:border-blue-500">
+                <button @click="sendMessage()" class="btn-primary px-4 rounded-2xl">
+                    <i data-lucide="send"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- 4. DASHBOARD -->
+        <section x-show="view === 'dash'" x-cloak x-transition>
+            <h2 class="text-2xl font-bold mb-6">Your Profile</h2>
+            
+            <div class="glass rounded-3xl p-6 mb-6">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-2xl font-bold">U</div>
+                    <div>
+                        <p class="text-lg font-bold">User #8293</p>
+                        <p class="text-xs text-slate-400" x-text="user.level + ' Level Enthusiast'"></p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-white/5 p-4 rounded-2xl">
+                        <p class="text-xs text-slate-400">XP Points</p>
+                        <p class="text-xl font-bold text-blue-400" x-text="user.xp"></p>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-2xl">
+                        <p class="text-xs text-slate-400">Friends Found</p>
+                        <p class="text-xl font-bold text-purple-400" x-text="user.unlockedCount"></p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="font-bold mb-4">Achievements</h3>
+            <div class="space-y-3">
+                <div class="glass p-4 rounded-2xl flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-yellow-500/20 rounded-lg text-yellow-500"><i data-lucide="award" size="20"></i></div>
+                        <div>
+                            <p class="text-sm font-bold">First Hello</p>
+                            <p class="text-[10px] text-slate-400">Send your first message</p>
+                        </div>
+                    </div>
+                    <i data-lucide="check-circle" class="text-green-500" size="18"></i>
+                </div>
+                <div class="glass p-4 rounded-2xl flex items-center justify-between opacity-50">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-blue-500/20 rounded-lg text-blue-500"><i data-lucide="users" size="20"></i></div>
+                        <div>
+                            <p class="text-sm font-bold">Social Butterfly</p>
+                            <p class="text-[10px] text-slate-400">Chat with 5 different AI</p>
+                        </div>
+                    </div>
+                    <i data-lucide="lock" size="18"></i>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="fixed bottom-0 left-0 w-full glass border-t border-white/10 px-6 py-4 z-40">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <button @click="view = 'home'" :class="view === 'home' ? 'text-blue-400' : 'text-slate-500'" class="nav-item">
+                <i data-lucide="home"></i>
+            </button>
+            <button @click="view = 'discover'" :class="view === 'discover' ? 'text-blue-400' : 'text-slate-500'" class="nav-item">
+                <i data-lucide="search"></i>
+            </button>
+            <button @click="view = 'dash'" :class="view === 'dash' ? 'text-blue-400' : 'text-slate-500'" class="nav-item">
+                <i data-lucide="user"></i>
+            </button>
+        </div>
+    </nav>
+
+    <script>
+        function vFriendsApp() {
+            return {
+                view: 'home',
+                filter: 'All',
+                categories: ['All', 'Gamer', 'Entrepreneur', 'Friendly', 'Funny', 'Traveler', 'Student'],
+                user: {
+                    xp: 120,
+                    level: 'Novice',
+                    unlockedCount: 4
+                },
+                nearbySimulated: [
+                    { name: 'Kai', age: 22, dist: 1.2, img: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&h=200&fit=crop' },
+                    { name: 'Sarah', age: 24, dist: 3.5, img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop' }
+                ],
+                characters: [
+                    { id: 1, name: 'Luna', age: 21, category: 'Gamer', personality: 'Competitive & Geeky', img: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=400&h=300&fit=crop' },
+                    { id: 2, name: 'Marcus', age: 28, category: 'Entrepreneur', personality: 'Ambitious & Direct', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop' },
+                    { id: 3, name: 'Elena', age: 23, category: 'Traveler', personality: 'Adventurous & Kind', img: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=300&fit=crop' },
+                    { id: 4, name: 'Jax', age: 20, category: 'Funny', personality: 'Chaos & Jokes', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=300&fit=crop' },
+                    { id: 5, name: 'Zoe', age: 22, category: 'Student', personality: 'Bookworm & Sweet', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=300&fit=crop' },
+                ],
+                activeChar: null,
+                activeChatHistory: [],
+                currentMsg: '',
+                isTyping: false,
+
+                get filteredCharacters() {
+                    if (this.filter === 'All') return this.characters;
+                    return this.characters.filter(c => c.category === this.filter);
+                },
+
+                openChat(char) {
+                    this.activeChar = char;
+                    this.view = 'chat';
+                    if (this.activeChatHistory.length === 0) {
+                        this.activeChatHistory.push({ role: 'ai', text: `Hey! I'm ${char.name}. I was just ${char.category === 'Gamer' ? 'playing some games' : 'thinking about my next trip'}. What's up?` });
+                    }
+                    setTimeout(() => lucide.createIcons(), 10);
+                },
+
+                sendMessage() {
+                    if (!this.currentMsg.trim()) return;
+                    
+                    const text = this.currentMsg;
+                    this.activeChatHistory.push({ role: 'user', text: text });
+                    this.currentMsg = '';
+                    this.user.xp += 10;
+                    
+                    // Simulate AI Response
+                    this.isTyping = true;
+                    setTimeout(() => {
+                        this.isTyping = false;
+                        const responses = [
+                            "That's so interesting! Tell me more.",
+                            "Haha, you're funny! I like your vibe.",
+                            "I totally get that. I feel the same way sometimes.",
+                            "Wait, really? I never thought of it that way!",
+                        ];
+                        const randomResp = responses[Math.floor(Math.random() * responses.length)];
+                        this.activeChatHistory.push({ role: 'ai', text: randomResp });
+                    }, 1500);
+                },
+
+                init() {
+                    lucide.createIcons();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
