@@ -1,281 +1,1317 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virtual Friends | AI Companionship</title>
+    <title>Virtual Friends - Simulated Friendship Platform</title>
+    <meta name="description" content="A fun, simulated AI friendship experience. All profiles are AI-generated fictional characters.">
+    
+    <!-- PWA & Mobile Web App Meta -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#4f46e5">
+    
+    <!-- Tailwind CSS & Lucide Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            light: '#a78bfa',
+                            DEFAULT: '#6366f1',
+                            dark: '#4f46e5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; overflow-x: hidden; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .gradient-text { background: linear-gradient(to right, #60a5fa, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .btn-primary { background: linear-gradient(to right, #3b82f6, #8b5cf6); transition: transform 0.2s; }
-        .btn-primary:active { scale: 0.95; }
-        .nav-item { transition: all 0.3s; }
-        .chat-bubble-ai { border-radius: 20px 20px 20px 0px; background: rgba(59, 130, 246, 0.2); }
-        .chat-bubble-user { border-radius: 20px 20px 0px 20px; background: rgba(139, 92, 246, 0.5); }
-        [x-cloak] { display: none !important; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .light .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.3);
+            border-radius: 10px;
+        }
     </style>
 </head>
-<body x-data="vFriendsApp()">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
 
-    <!-- ⚠️ MANDATORY DISCLAIMER OVERLAY -->
-    <div class="fixed top-0 left-0 w-full z-[100] bg-amber-500 text-black text-[10px] md:text-xs py-1 px-4 font-bold text-center uppercase tracking-wider">
-        Notice: All profiles are AI-generated fictional characters for entertainment only. No real people here.
+    <!-- TOP GLOBAL DISCLAIMER BANNER -->
+    <div class="bg-amber-500/10 border-b border-amber-500/20 text-amber-500 text-xs px-4 py-2 text-center font-medium backdrop-blur">
+        ⚠️ Notice: All profiles on this platform are AI-generated fictional characters created for entertainment purposes only. They are not real people. Simulated locations are used.
     </div>
 
-    <!-- MAIN CONTENT AREA -->
-    <main class="pb-24 pt-8 px-4 max-w-md mx-auto min-h-screen">
-
-        <!-- 1. HOME PAGE -->
-        <section x-show="view === 'home'" x-cloak x-transition>
-            <div class="mt-8 mb-12 text-center">
-                <div class="inline-block p-3 rounded-full bg-blue-500/20 mb-4">
-                    <i data-lucide="sparkles" class="text-blue-400"></i>
+    <!-- Header / Navigation -->
+    <header class="sticky top-0 z-50 glass border-b border-white/10 dark:border-white/5 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="navigate('home')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand to-purple-500 flex items-center justify-center text-white font-extrabold shadow-lg shadow-indigo-500/30">
+                    VF
                 </div>
-                <h1 class="text-4xl font-bold mb-2">Virtual <span class="gradient-text">Friends</span></h1>
-                <p class="text-slate-400 text-sm">Experience the future of social simulation.</p>
+                <span class="font-bold text-xl tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Virtual Friends</span>
             </div>
 
-            <!-- Location Simulation Card -->
-            <div class="glass rounded-3xl p-6 mb-6 text-center relative overflow-hidden">
-                <div class="absolute -top-4 -right-4 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl"></div>
-                <i data-lucide="map-pin" class="mx-auto mb-2 text-purple-400"></i>
-                <h2 class="text-xl font-semibold">Virtual Friends Near You</h2>
-                <p class="text-xs text-slate-400 mb-4">Simulating nearby fictional characters...</p>
-                
-                <div class="flex flex-col gap-3">
-                    <template x-for="f in nearbySimulated">
-                        <div class="flex items-center gap-3 bg-white/5 p-2 rounded-xl text-left">
-                            <img :src="f.img" class="w-10 h-10 rounded-full object-cover">
-                            <div>
-                                <p class="text-sm font-bold" x-text="f.name + ', ' + f.age"></p>
-                                <p class="text-[10px] text-blue-300" x-text="f.dist + ' simulated km away'"></p>
-                            </div>
-                        </div>
-                    </template>
+            <!-- Header Middle: Navigation Links -->
+            <nav class="hidden md:flex items-center gap-1">
+                <button onclick="navigate('home')" class="px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/10 transition">Home</button>
+                <button onclick="navigate('explore')" class="px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/10 transition">Find Friends</button>
+                <button onclick="navigate('dashboard')" class="px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/10 transition">Dashboard</button>
+                <button onclick="navigate('leaderboard')" class="px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/10 transition">Leaderboard</button>
+                <button onclick="navigate('admin')" class="px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/10 text-rose-400 transition">Admin Panel</button>
+            </nav>
+
+            <!-- Header Right: User Meta & Actions -->
+            <div class="flex items-center gap-3">
+                <button onclick="toggleTheme()" class="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition" title="Toggle Dark/Light Mode">
+                    <i data-lucide="sun" id="theme-icon-light" class="hidden w-5 h-5"></i>
+                    <i data-lucide="moon" id="theme-icon-dark" class="w-5 h-5"></i>
+                </button>
+
+                <div id="header-user-badge" class="hidden flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1.5 rounded-full">
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                    <span class="text-xs font-semibold text-indigo-300 uppercase tracking-wider">Level <span id="user-level">1</span></span>
+                    <span class="text-xs text-indigo-400 font-medium border-l border-indigo-500/20 pl-2"><span id="user-xp">0</span> XP</span>
                 </div>
 
-                <button @click="view = 'discover'" class="w-full mt-6 btn-primary py-3 rounded-2xl font-bold shadow-lg shadow-blue-500/20">
-                    Find New Friends
+                <button id="auth-btn" onclick="navigate('auth')" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg shadow-indigo-600/20 transition">
+                    Sign Up
                 </button>
             </div>
+        </div>
+    </header>
 
-            <!-- Ad Placeholder -->
-            <div class="w-full h-24 glass rounded-xl flex items-center justify-center text-slate-600 text-xs border-dashed border-2 border-slate-700">
-                Google AdSense Placeholder
+    <!-- MAIN INTERACTIVE CONTAINER -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- AD LAYOUT WRAPPER (AdSense Compatible Space) -->
+        <div class="mb-6 rounded-2xl border border-slate-800 bg-slate-900/40 p-3 flex flex-col items-center justify-center text-center overflow-hidden">
+            <span class="text-[9px] uppercase tracking-wider text-slate-500 mb-1">Sponsored Advertisement</span>
+            <div class="w-full max-w-4xl h-16 bg-slate-950/60 rounded-xl border border-slate-800/80 flex items-center justify-center text-slate-400 text-xs gap-2">
+                <i data-lucide="layout" class="w-4 h-4 text-indigo-500"></i>
+                <span>Responsive Ad Unit - Premium Membership Removes Ads</span>
             </div>
-        </section>
+        </div>
 
-        <!-- 2. DISCOVER / PROFILES -->
-        <section x-show="view === 'discover'" x-cloak x-transition>
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">Discover AI</h2>
-                <span class="text-xs bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full border border-purple-500/30" x-text="'XP: ' + user.xp"></span>
-            </div>
+        <!-- VIEW 1: HOME PAGE -->
+        <section id="view-home" class="space-y-12 py-4">
+            <!-- Hero Grid -->
+            <div class="grid lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium">
+                        <span class="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></span>
+                        Simulated Virtual Connections
+                    </div>
+                    <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight">
+                        Find Virtual Friends <br>
+                        <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Near Your Area</span>
+                    </h1>
+                    <p class="text-slate-400 text-lg leading-relaxed max-w-xl">
+                        Explore engaging interactive simulation matches with AI characters based on location parameters. Connect instantly, chat dynamically, level up, and unlock rare character packs!
+                    </p>
+                    <div class="p-4 rounded-xl bg-slate-900/50 border border-slate-800 flex gap-3 items-start">
+                        <i data-lucide="shield-alert" class="w-5 h-5 text-indigo-400 shrink-0 mt-0.5"></i>
+                        <p class="text-xs text-slate-400 leading-normal">
+                            <span class="font-semibold text-slate-200">Entertainment Only Policy:</span> 
+                            All matching virtual profiles are simulated AI-generated entities. Photos, biographical data, and current simulated locations do not represent real individuals.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-4 pt-2">
+                        <button onclick="navigate('explore')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:shadow-xl hover:shadow-indigo-500/20 text-white rounded-xl font-bold flex items-center gap-2 transform active:scale-95 transition">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i>
+                            Start Simulating Now
+                        </button>
+                        <button onclick="navigate('auth')" class="px-8 py-4 bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-200 rounded-xl font-bold transition">
+                            Register Account
+                        </button>
+                    </div>
+                </div>
 
-            <!-- Categories -->
-            <div class="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
-                <template x-for="cat in categories">
-                    <button 
-                        @click="filter = cat"
-                        :class="filter === cat ? 'bg-blue-600 text-white' : 'glass text-slate-400'"
-                        class="px-4 py-1.5 rounded-full text-xs whitespace-nowrap" 
-                        x-text="cat">
-                    </button>
-                </template>
-            </div>
+                <!-- Interactive Hero Widget -->
+                <div class="lg:col-span-5 relative">
+                    <div class="absolute -top-12 -left-12 w-64 h-64 bg-indigo-600/20 rounded-full blur-3xl -z-10"></div>
+                    <div class="absolute -bottom-12 -right-12 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl -z-10"></div>
+                    
+                    <div class="glass rounded-3xl p-6 shadow-2xl space-y-6 relative overflow-hidden">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                                <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Now Simulating</span>
+                            </div>
+                            <span class="text-xs text-slate-500" id="hero-loc-disclaimer">Simulated Local matches</span>
+                        </div>
 
-            <!-- Profile Cards Grid -->
-            <div class="grid grid-cols-1 gap-4">
-                <template x-for="char in filteredCharacters">
-                    <div class="glass rounded-2xl overflow-hidden relative">
-                        <img :src="char.img" class="w-full h-48 object-cover">
-                        <div class="absolute top-2 right-2 px-2 py-1 bg-black/60 backdrop-blur-md rounded text-[10px]" x-text="char.category"></div>
-                        <div class="p-4">
-                            <div class="flex justify-between items-end">
-                                <div>
-                                    <h3 class="text-lg font-bold" x-text="char.name + ', ' + char.age"></h3>
-                                    <p class="text-xs text-blue-300" x-text="char.personality"></p>
+                        <!-- Featured Simulated Profile Card -->
+                        <div class="relative group rounded-2xl overflow-hidden border border-white/10 bg-slate-950/40">
+                            <img id="hero-char-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80" alt="Fictional character" class="w-full h-72 object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent flex flex-col justify-end p-5">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <h3 class="text-xl font-bold text-white" id="hero-char-name">Clara Chen</h3>
+                                    <span class="px-2 py-0.5 rounded bg-indigo-600/80 text-[10px] font-bold uppercase tracking-wider text-white">GAMER</span>
                                 </div>
-                                <button @click="openChat(char)" class="btn-primary p-2 rounded-xl">
-                                    <i data-lucide="message-circle" size="18"></i>
-                                </button>
+                                <p class="text-xs text-slate-300 mb-3" id="hero-char-bio">"Always seeking the next epic co-op match or narrative indie game. Let's conquer virtual horizons."</p>
+                                <div class="flex items-center justify-between text-xs text-slate-400 border-t border-white/10 pt-3">
+                                    <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-rose-500"></i> <span id="hero-char-loc">Metro Tokyo (Simulated)</span></span>
+                                    <span class="flex items-center gap-1"><i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500"></i> Level 4 Rare</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="startInstantChat()" class="w-full py-3 bg-white/10 hover:bg-white/15 text-white rounded-xl font-semibold flex items-center justify-center gap-2 border border-white/10 transition">
+                            <i data-lucide="message-square" class="w-4 h-4 text-indigo-400"></i>
+                            Initiate Instant Chat
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid md:grid-cols-3 gap-6 pt-8">
+                <div class="glass p-6 rounded-2xl space-y-3">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                        <i data-lucide="map" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-lg font-bold">Location Simulation</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Dynamic localization allows you to simulate matches in adjacent neighborhoods or surrounding cities under completely fictional labels.</p>
+                </div>
+                <div class="glass p-6 rounded-2xl space-y-3">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                        <i data-lucide="smile" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-lg font-bold">Diverse Personalities</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Choose from 6 discrete character classes including Funny, Entrepreneur, Student, Gamer, Friendly, or Traveler, each with dynamic behaviors.</p>
+                </div>
+                <div class="glass p-6 rounded-2xl space-y-3">
+                    <div class="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400">
+                        <i data-lucide="trophy" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-lg font-bold">Reward Gamification</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Accumulate XP points with each text, unlock daily quest rewards, earn digital collector badges, and unlock rare/exclusive profiles.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: AUTHENTICATION (SIGN UP & LOGIN) -->
+        <section id="view-auth" class="hidden max-w-md mx-auto py-12">
+            <div class="glass rounded-3xl p-8 space-y-6 border border-slate-800 shadow-2xl">
+                <div class="text-center space-y-2">
+                    <h2 class="text-2xl font-bold">Create Free Account</h2>
+                    <p class="text-sm text-slate-400">Unlock interactive fictional virtual matches immediately</p>
+                </div>
+
+                <form id="auth-form" onsubmit="handleRegistration(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Display Name</label>
+                        <input type="text" id="auth-name" required placeholder="Your Nickname" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition text-slate-100">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Simulated Base City</label>
+                        <input type="text" id="auth-city" required placeholder="e.g. Kyoto, Munich, Seattle" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition text-slate-100">
+                    </div>
+                    
+                    <!-- MANDATORY DISCLAIMER BOX -->
+                    <div class="p-4 rounded-xl bg-indigo-500/5 border border-indigo-500/20 space-y-3">
+                        <div class="flex items-start gap-3">
+                            <input type="checkbox" id="auth-disclaimer" required class="mt-1 accent-indigo-500">
+                            <label for="auth-disclaimer" class="text-xs text-indigo-200 leading-snug cursor-pointer select-none">
+                                I verify that I fully understand <span class="font-bold underline">all profiles on this site are synthetic fictional AI entities</span> built exclusively for simulation/entertainment.
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/20 transform active:scale-95 transition">
+                        Register & Begin
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- VIEW 3: EXPLORE PROFILES -->
+        <section id="view-explore" class="hidden space-y-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-3xl font-extrabold tracking-tight">Virtual Matches</h2>
+                    <p class="text-sm text-slate-400">Showing simulated profiles matching your criteria. Note: Locations are artificial.</p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="relative min-w-[200px]">
+                        <i data-lucide="map-pin" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input type="text" id="filter-location" oninput="applyFilters()" placeholder="Filter location..." class="pl-9 pr-4 py-2 w-full bg-slate-900 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-200">
+                    </div>
+                    <button onclick="toggleGeoSimulation()" id="btn-geo-sim" class="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold hover:bg-emerald-500/20 transition">
+                        <i data-lucide="locate-fixed" class="w-4 h-4"></i>
+                        Simulate Nearby GPS
+                    </button>
+                </div>
+            </div>
+
+            <!-- Categories Filter Badges -->
+            <div class="flex flex-wrap gap-2 overflow-x-auto pb-2 border-b border-slate-950/20">
+                <button onclick="setCategoryFilter('all')" class="cat-badge px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 transition">All Profiles</button>
+                <button onclick="setCategoryFilter('Friendly')" class="cat-badge px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition">Friendly</button>
+                <button onclick="setCategoryFilter('Funny')" class="cat-badge px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition">Funny</button>
+                <button onclick="setCategoryFilter('Gamer')" class="cat-badge px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition">Gamer</button>
+                <button onclick="setCategoryFilter('Student')" class="cat-badge px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition">Student</button>
+                <button onclick="setCategoryFilter('Traveler')" class="cat-badge px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition">Traveler</button>
+                <button onclick="setCategoryFilter('Entrepreneur')" class="cat-badge px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition">Entrepreneur</button>
+            </div>
+
+            <!-- Profiles Grid Container -->
+            <div id="profiles-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Dynamically populated -->
+            </div>
+        </section>
+
+        <!-- VIEW 4: CHAT SYSTEM -->
+        <section id="view-chat" class="hidden h-[calc(100vh-14rem)] min-h-[500px] flex flex-col md:flex-row gap-6">
+            <!-- Left Panel: Chat List (Desktop Only) -->
+            <div class="hidden md:flex flex-col w-80 glass border-r border-white/5 rounded-2xl overflow-hidden shrink-0">
+                <div class="p-4 border-b border-white/5 bg-slate-950/30">
+                    <h3 class="font-bold text-sm tracking-wider uppercase text-slate-400">Active Conversations</h3>
+                </div>
+                <div class="flex-grow overflow-y-auto p-2 space-y-1" id="active-chats-list">
+                    <!-- Dynamic List of Active Chats -->
+                </div>
+            </div>
+
+            <!-- Right Panel: Active Chat Box -->
+            <div class="flex-grow flex flex-col glass rounded-2xl overflow-hidden relative">
+                <!-- Chat partner header -->
+                <div class="p-4 border-b border-white/10 dark:border-white/5 bg-slate-950/20 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <img id="chat-header-img" src="" alt="" class="w-10 h-10 rounded-full object-cover ring-2 ring-indigo-500/50">
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <h3 id="chat-header-name" class="font-bold text-sm">Loading...</h3>
+                                <span id="chat-header-badge" class="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase bg-indigo-500/20 text-indigo-300 tracking-wider">Gamer</span>
+                            </div>
+                            <span id="chat-header-loc" class="text-xs text-slate-400 flex items-center gap-1">
+                                <i data-lucide="map-pin" class="w-3 h-3 text-rose-500 shrink-0"></i>
+                                Simulated City
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-xs text-slate-400 font-medium">Virtual Connection</span>
+                    </div>
+                </div>
+
+                <!-- Chat Messages Screen -->
+                <div id="chat-messages-screen" class="flex-grow overflow-y-auto p-4 space-y-4">
+                    <!-- Dynamic Chat Messages go here -->
+                </div>
+
+                <!-- Typing indicator -->
+                <div id="chat-typing-indicator" class="hidden px-4 py-2 text-xs text-slate-400 italic flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
+                    <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-100"></span>
+                    <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-200"></span>
+                    <span id="typing-name">Character</span> is typing simulated response...
+                </div>
+
+                <!-- Chat Input Section -->
+                <form id="chat-input-form" onsubmit="handleSendMessage(event)" class="p-4 border-t border-white/10 dark:border-white/5 bg-slate-950/20 flex gap-3">
+                    <input type="text" id="chat-input-field" placeholder="Type a message..." class="flex-grow bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-slate-200" required>
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl shadow-lg shadow-indigo-600/10 flex items-center justify-center transition">
+                        <i data-lucide="send" class="w-5 h-5"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- VIEW 5: USER DASHBOARD -->
+        <section id="view-dashboard" class="hidden space-y-8">
+            <div class="grid md:grid-cols-12 gap-6">
+                <!-- Dashboard Sidebar Card -->
+                <div class="md:col-span-4 glass rounded-3xl p-6 space-y-6 text-center border border-slate-800 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl"></div>
+                    <div class="w-24 h-24 rounded-full bg-indigo-600/20 border border-indigo-500/30 mx-auto flex items-center justify-center text-indigo-400 text-4xl font-extrabold shadow-lg shadow-indigo-500/5">
+                        <span id="dash-initial">U</span>
+                    </div>
+                    <div>
+                        <h2 id="dash-username" class="text-2xl font-bold">User Guest</h2>
+                        <span class="text-xs text-indigo-400 font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 mt-1">
+                            <i data-lucide="crown" class="w-3.5 h-3.5"></i> Level <span id="dash-level">1</span> Member
+                        </span>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-950/50 border border-slate-800/80 space-y-3">
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span>Total XP</span>
+                            <span class="text-slate-200 font-bold"><span id="dash-xp">0</span> / 1000</span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                            <div id="dash-xp-progress" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Daily Reward Check-in -->
+                    <button id="btn-daily-reward" onclick="claimDailyReward()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-md shadow-indigo-500/10 hover:shadow-lg hover:shadow-indigo-500/20 transition flex items-center justify-center gap-2">
+                        <i data-lucide="gift" class="w-4 h-4"></i>
+                        Claim Daily Check-In (+100 XP)
+                    </button>
+                </div>
+
+                <!-- Dashboard Content Area -->
+                <div class="md:col-span-8 space-y-6">
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        <div class="glass p-4 rounded-2xl flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                                <i data-lucide="message-square" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-400 block">Total Chats</span>
+                                <span id="dash-stat-chats" class="text-lg font-bold">0</span>
+                            </div>
+                        </div>
+                        <div class="glass p-4 rounded-2xl flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                                <i data-lucide="users" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-400 block">Unlocked Profiles</span>
+                                <span id="dash-stat-unlocked" class="text-lg font-bold">0</span>
+                            </div>
+                        </div>
+                        <div class="glass p-4 rounded-2xl flex items-center gap-3 col-span-2 sm:col-span-1">
+                            <div class="w-10 h-10 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400">
+                                <i data-lucide="share-2" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-400 block">Successful Invites</span>
+                                <span id="dash-stat-invites" class="text-lg font-bold">0</span>
                             </div>
                         </div>
                     </div>
-                </template>
+
+                    <!-- Achievements & Badges -->
+                    <div class="glass p-6 rounded-3xl space-y-4">
+                        <h3 class="font-bold text-lg tracking-tight">Your Digital Achievements</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="badges-container">
+                            <!-- Badges will be updated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Invite & Share Link Section -->
+                    <div class="glass p-6 rounded-3xl space-y-4 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl"></div>
+                        <h3 class="font-bold text-lg tracking-tight flex items-center gap-2">
+                            <i data-lucide="gift" class="text-indigo-400 w-5 h-5"></i> Invite Friends & Unlock Rare AI Packs
+                        </h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Invite real-life friends to try Virtual Friends! Unlocking rare/featured AI profiles is triggered on simulated referrals. Each successful simulated invite unlocks unique badges and secret AI character lists.
+                        </p>
+                        
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="text" readonly id="invite-link-field" value="https://virtualfriends.example.com/invite/883x920" class="flex-grow bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:outline-none text-slate-300 font-mono">
+                            <button onclick="simulateInviteShare()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl text-xs font-semibold shadow-md shadow-indigo-500/10 flex items-center justify-center gap-2 transition">
+                                <i data-lucide="copy" class="w-4 h-4"></i> Simulate Invite
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- 3. CHAT SYSTEM -->
-        <section x-show="view === 'chat'" x-cloak x-transition class="fixed inset-0 bg-slate-900 z-50 flex flex-col p-4">
-            <div class="flex items-center gap-4 mb-4">
-                <button @click="view = 'discover'"><i data-lucide="chevron-left"></i></button>
-                <div class="flex items-center gap-2">
-                    <img :src="activeChar?.img" class="w-10 h-10 rounded-full">
-                    <div>
-                        <p class="font-bold text-sm" x-text="activeChar?.name"></p>
-                        <p class="text-[10px] text-green-400">Online AI</p>
-                    </div>
+        <!-- VIEW 6: LEADERBOARD -->
+        <section id="view-leaderboard" class="hidden max-w-2xl mx-auto space-y-6">
+            <div class="text-center space-y-2">
+                <h2 class="text-3xl font-extrabold tracking-tight">Top Simulator Users</h2>
+                <p class="text-sm text-slate-400">Competitive global rank of simulated Virtual Friends community members.</p>
+            </div>
+
+            <div class="glass rounded-3xl overflow-hidden border border-slate-800">
+                <div class="p-4 bg-slate-950/30 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400 uppercase tracking-wider font-bold">
+                    <span>User Rank</span>
+                    <span>Level / Score</span>
                 </div>
-            </div>
-
-            <div class="flex-1 overflow-y-auto space-y-4 pb-4">
-                <template x-for="msg in activeChatHistory">
-                    <div :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
-                        <div :class="msg.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'" class="max-w-[80%] p-3 text-sm" x-text="msg.text"></div>
-                    </div>
-                </template>
-                <div x-show="isTyping" class="text-[10px] text-slate-500 italic">AI Friend is thinking...</div>
-            </div>
-
-            <div class="mt-auto flex gap-2">
-                <input x-model="currentMsg" @keyup.enter="sendMessage()" type="text" placeholder="Type a message..." class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none focus:border-blue-500">
-                <button @click="sendMessage()" class="btn-primary px-4 rounded-2xl">
-                    <i data-lucide="send"></i>
-                </button>
+                <div class="divide-y divide-slate-900" id="leaderboard-list">
+                    <!-- Dynamic mock user positions -->
+                </div>
             </div>
         </section>
 
-        <!-- 4. DASHBOARD -->
-        <section x-show="view === 'dash'" x-cloak x-transition>
-            <h2 class="text-2xl font-bold mb-6">Your Profile</h2>
-            
-            <div class="glass rounded-3xl p-6 mb-6">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-2xl font-bold">U</div>
-                    <div>
-                        <p class="text-lg font-bold">User #8293</p>
-                        <p class="text-xs text-slate-400" x-text="user.level + ' Level Enthusiast'"></p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 text-center">
-                    <div class="bg-white/5 p-4 rounded-2xl">
-                        <p class="text-xs text-slate-400">XP Points</p>
-                        <p class="text-xl font-bold text-blue-400" x-text="user.xp"></p>
-                    </div>
-                    <div class="bg-white/5 p-4 rounded-2xl">
-                        <p class="text-xs text-slate-400">Friends Found</p>
-                        <p class="text-xl font-bold text-purple-400" x-text="user.unlockedCount"></p>
-                    </div>
+        <!-- VIEW 7: ADMIN PANEL (SIMULATED CONTROL) -->
+        <section id="view-admin" class="hidden space-y-8">
+            <div class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-start gap-3">
+                <i data-lucide="shield-alert" class="w-5 h-5 shrink-0"></i>
+                <div>
+                    <span class="font-bold uppercase tracking-wider block mb-1">Simulated Administration Panel</span>
+                    Configure and test operational characteristics, spawning parameters, ad units, and view site analytics metrics.
                 </div>
             </div>
 
-            <h3 class="font-bold mb-4">Achievements</h3>
-            <div class="space-y-3">
-                <div class="glass p-4 rounded-2xl flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-yellow-500/20 rounded-lg text-yellow-500"><i data-lucide="award" size="20"></i></div>
-                        <div>
-                            <p class="text-sm font-bold">First Hello</p>
-                            <p class="text-[10px] text-slate-400">Send your first message</p>
-                        </div>
-                    </div>
-                    <i data-lucide="check-circle" class="text-green-500" size="18"></i>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Spawner Controls -->
+                <div class="glass p-6 rounded-3xl space-y-4">
+                    <h3 class="font-bold text-lg flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5 text-indigo-400"></i> Character Spawner</h3>
+                    <p class="text-xs text-slate-400">Manually trigger custom procedural generation of random simulated characters into the global profile matching grid pool.</p>
+                    <button onclick="adminSpawnCharacter()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i> Generate 10 Virtual Profiles
+                    </button>
                 </div>
-                <div class="glass p-4 rounded-2xl flex items-center justify-between opacity-50">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-blue-500/20 rounded-lg text-blue-500"><i data-lucide="users" size="20"></i></div>
-                        <div>
-                            <p class="text-sm font-bold">Social Butterfly</p>
-                            <p class="text-[10px] text-slate-400">Chat with 5 different AI</p>
+
+                <!-- Mock Ad System Controls -->
+                <div class="glass p-6 rounded-3xl space-y-4">
+                    <h3 class="font-bold text-lg flex items-center gap-2"><i data-lucide="layout-template" class="w-5 h-5 text-purple-400"></i> Monetization Control</h3>
+                    <p class="text-xs text-slate-400">Adjust programmatic mock responsive placeholder structures and simulate monetized rewareded integrations.</p>
+                    
+                    <div class="space-y-2">
+                        <button onclick="toggleMockPremiumStatus()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-750 text-xs font-bold rounded-lg border border-slate-700 transition flex items-center justify-center gap-2">
+                            <i data-lucide="crown" class="w-4 h-4 text-amber-400"></i> Toggle Premium Status (Ad-Free)
+                        </button>
+                        <button onclick="simulateRewardedAd()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-750 text-xs font-bold rounded-lg border border-slate-700 transition flex items-center justify-center gap-2">
+                            <i data-lucide="play-circle" class="w-4 h-4 text-purple-400"></i> Simulate Rewarded Video Ad
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mock Analytics Dashboard -->
+                <div class="glass p-6 rounded-3xl space-y-4">
+                    <h3 class="font-bold text-lg flex items-center gap-2"><i data-lucide="bar-chart-2" class="w-5 h-5 text-emerald-400"></i> Mock Analytics</h3>
+                    <div class="grid grid-cols-2 gap-3 text-center">
+                        <div class="bg-slate-950/40 border border-slate-800 p-3 rounded-xl">
+                            <span class="text-[10px] text-slate-500 uppercase block tracking-wider">Active Sessions</span>
+                            <span class="text-lg font-extrabold text-emerald-400">14,802</span>
+                        </div>
+                        <div class="bg-slate-950/40 border border-slate-800 p-3 rounded-xl">
+                            <span class="text-[10px] text-slate-500 uppercase block tracking-wider">Simulated RPM</span>
+                            <span class="text-lg font-extrabold text-indigo-400">$2.45</span>
                         </div>
                     </div>
-                    <i data-lucide="lock" size="18"></i>
+                    <p class="text-[10px] text-slate-500 leading-normal text-center">Programmatic telemetry feeds simulation metrics to Firebase backend placeholders.</p>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- MOBILE BOTTOM NAVIGATION -->
-    <nav class="fixed bottom-0 left-0 w-full glass border-t border-white/10 px-6 py-4 z-40">
-        <div class="flex justify-between items-center max-w-md mx-auto">
-            <button @click="view = 'home'" :class="view === 'home' ? 'text-blue-400' : 'text-slate-500'" class="nav-item">
-                <i data-lucide="home"></i>
-            </button>
-            <button @click="view = 'discover'" :class="view === 'discover' ? 'text-blue-400' : 'text-slate-500'" class="nav-item">
-                <i data-lucide="search"></i>
-            </button>
-            <button @click="view = 'dash'" :class="view === 'dash' ? 'text-blue-400' : 'text-slate-500'" class="nav-item">
-                <i data-lucide="user"></i>
-            </button>
+    <!-- FOOTER DISCLAIMER -->
+    <footer class="mt-auto border-t border-slate-900 bg-slate-950 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 text-center">
+            <p class="text-xs text-slate-500 leading-relaxed max-w-3xl mx-auto">
+                Disclaimer: <span class="text-slate-400 font-semibold">Virtual Friends is a fully fictional mock-up simulation app designed for developer demonstration & amusement.</span> Photos utilize CC-compliant license models and royalty-free placeholder directories. All profiles, geographical distance metrics, matching indices, conversations, and user activities depicted are synthetic computational fabrications. No actual relationships, direct communication, or private profiles exist with real persons.
+            </p>
+            <div class="flex justify-center gap-6 text-xs text-slate-600">
+                <a href="#" class="hover:text-slate-400 transition">Terms of Service</a>
+                <a href="#" class="hover:text-slate-400 transition">Privacy Policy</a>
+                <a href="#" class="hover:text-slate-400 transition">Cookies Settings</a>
+            </div>
+            <p class="text-xs text-slate-600">&copy; 2026 Virtual Friends Fictional Simulation, Inc.</p>
         </div>
-    </nav>
+    </footer>
+
+    <!-- DYNAMIC ALERTS / TOASTS -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
 
     <script>
-        function vFriendsApp() {
-            return {
-                view: 'home',
-                filter: 'All',
-                categories: ['All', 'Gamer', 'Entrepreneur', 'Friendly', 'Funny', 'Traveler', 'Student'],
-                user: {
-                    xp: 120,
-                    level: 'Novice',
-                    unlockedCount: 4
-                },
-                nearbySimulated: [
-                    { name: 'Kai', age: 22, dist: 1.2, img: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&h=200&fit=crop' },
-                    { name: 'Sarah', age: 24, dist: 3.5, img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop' }
-                ],
-                characters: [
-                    { id: 1, name: 'Luna', age: 21, category: 'Gamer', personality: 'Competitive & Geeky', img: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=400&h=300&fit=crop' },
-                    { id: 2, name: 'Marcus', age: 28, category: 'Entrepreneur', personality: 'Ambitious & Direct', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop' },
-                    { id: 3, name: 'Elena', age: 23, category: 'Traveler', personality: 'Adventurous & Kind', img: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=300&fit=crop' },
-                    { id: 4, name: 'Jax', age: 20, category: 'Funny', personality: 'Chaos & Jokes', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=300&fit=crop' },
-                    { id: 5, name: 'Zoe', age: 22, category: 'Student', personality: 'Bookworm & Sweet', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=300&fit=crop' },
-                ],
-                activeChar: null,
-                activeChatHistory: [],
-                currentMsg: '',
-                isTyping: false,
+        /* ==========================================================================
+           STATE MANAGEMENT & DATA MODELS
+           ========================================================================== */
+        
+        // Dynamic character repositories (Seed lists for procedural gen)
+        const charNames = ["Aria", "Xavier", "Isabella", "Kai", "Sasha", "Liam", "Mei", "Elena", "Lucas", "Maya", "Amir", "Chloe", "Mateo", "Zoe", "Dante", "Sophia", "Jaden", "Yuki", "Niko", "Naomi"];
+        const charLastNames = ["Chen", "Vance", "Martinez", "Brooks", "Sato", "Patel", "Nkosi", "Larson", "O'Connor", "Gomez", "Kozlov", "Dubois"];
+        const hobbies = [
+            ["E-sports competition", "Speedrunning classic games", "Keyboard modifications"],
+            ["Standup open mic", "Impulsive baking", "Pranking voice bots"],
+            ["Angel investing", "Writing SaaS newsletters", "Automating life hacks"],
+            ["Coffee shop hopping", "Anatomy study logs", "Procrastinating exams"],
+            ["Backpacking hidden paths", "Taking shaky polaroids", "Hostel hopping"],
+            ["Urban gardening", "Learning acoustic guitar", "Thrift-store transformations"]
+        ];
+        const bioPresets = [
+            "Always searching for a great dynamic challenge. Let's conquer the ranks of pixel kingdoms.",
+            "Life is too serious to take seriously. Let me share a dry dad joke or absolute hot take.",
+            "Currently scaling operations of a micro-SaaS. Hit me up if you want to swap scaling ideas.",
+            "Just trying to pass college midterms without losing my mind. Coffee recommendations appreciated.",
+            "Wanderlust seeker. Seeking recommendations for hidden-gem street food vendors worldwide.",
+            "Just looking to build meaningful vibes. Let's chat about daily routine hacks, movies, or pets."
+        ];
+        const categories = ["Gamer", "Funny", "Entrepreneur", "Student", "Traveler", "Friendly"];
+        
+        // Custom dynamic response templates based on fictional personality vectors
+        const responseTemplates = {
+            Gamer: [
+                "Nice choice! Just wrapped up a speedrun. What are your thoughts on competitive FPS titles?",
+                "That's wild! Honestly feels like navigating a level-90 boss fight without health potions. Haha.",
+                "Let's check out our simulation parameters. Want to trade gamer tags later?",
+                "Haha! That's absolute epic tier content. Reminds me of my favorite RPG quest."
+            ],
+            Funny: [
+                "Haha, you're pretty funny! Not as funny as a compiler error at 3 AM, but close.",
+                "Why did the cloud database break up? Because there was no relational schema. Just kidding!",
+                "Honestly, that belongs on an anonymous meme forum. Tell me more!",
+                "That is pure comedy gold. I'm taking notes for my next virtual open-mic night."
+            ],
+            Entrepreneur: [
+                "Excellent point. How does that impact user conversion or market penetration?",
+                "That feels like a scalable model. Personally, I automate all repeatable microtasks.",
+                "We should collaborate on a digital concept. Networking is the highest yield leverage.",
+                "Fascinating feedback. What is your primary focus point for Q3?"
+            ],
+            Student: [
+                "Oh man, completely agree. That is almost as exhausting as cramming for 4 hours.",
+                "My professors would probably write a whole chapter on that topic. I'm just struggling through lectures.",
+                "Honestly, I'd write a paper on that but my academic schedule is fully packed this semester.",
+                "Haha! I should use that excuse the next time I turn in my assignment late."
+            ],
+            Traveler: [
+                "No way! That sounds like this sketchy hostel I stayed at in Prague back in 2024.",
+                "Absolutely breathtaking concept! Traveling is all about stepping out of comfort zones.",
+                "That is high-tier adventure fuel. Have you ever hiked through local mountain ridges?",
+                "It’s incredible how diverse experiences can shape our outlook. What's your next destination?"
+            ],
+            Friendly: [
+                "That sounds so lovely! I am so happy you shared that with me.",
+                "Aw, hope your week has been going amazingly. What's your favorite comfort routine?",
+                "I completely get you. Let me know if you ever need someone to vent or chat with!",
+                "That's so fascinating! Always here to support a friendly conversation."
+            ]
+        };
 
-                get filteredCharacters() {
-                    if (this.filter === 'All') return this.characters;
-                    return this.characters.filter(c => c.category === this.filter);
-                },
+        const simulatedCities = ["Osaka", "Heidelberg", "Austin", "Vancouver", "Melbourne", "Cape Town", "Oslo", "Austin", "Lille", "Bologna", "Valparaíso", "Chiang Mai"];
 
-                openChat(char) {
-                    this.activeChar = char;
-                    this.view = 'chat';
-                    if (this.activeChatHistory.length === 0) {
-                        this.activeChatHistory.push({ role: 'ai', text: `Hey! I'm ${char.name}. I was just ${char.category === 'Gamer' ? 'playing some games' : 'thinking about my next trip'}. What's up?` });
-                    }
-                    setTimeout(() => lucide.createIcons(), 10);
-                },
+        let state = {
+            currentView: "home",
+            isDarkMode: true,
+            isGeoSimulated: false,
+            user: null, // Null indicates guest status
+            characters: [], // Filled dynamically
+            chatHistory: {}, // format: { characterId: [ {sender, text, timestamp} ] }
+            activeChatCharacterId: null,
+            filters: {
+                category: 'all',
+                location: ''
+            },
+            adFree: false,
+            invitedCount: 0,
+            dailyCheckInClaimed: false
+        };
 
-                sendMessage() {
-                    if (!this.currentMsg.trim()) return;
-                    
-                    const text = this.currentMsg;
-                    this.activeChatHistory.push({ role: 'user', text: text });
-                    this.currentMsg = '';
-                    this.user.xp += 10;
-                    
-                    // Simulate AI Response
-                    this.isTyping = true;
-                    setTimeout(() => {
-                        this.isTyping = false;
-                        const responses = [
-                            "That's so interesting! Tell me more.",
-                            "Haha, you're funny! I like your vibe.",
-                            "I totally get that. I feel the same way sometimes.",
-                            "Wait, really? I never thought of it that way!",
-                        ];
-                        const randomResp = responses[Math.floor(Math.random() * responses.length)];
-                        this.activeChatHistory.push({ role: 'ai', text: randomResp });
-                    }, 1500);
-                },
+        /* ==========================================================================
+           INITIALIZATION & UTILITIES
+           ========================================================================== */
+        window.addEventListener('DOMContentLoaded', () => {
+            generateInitialPool(60);
+            renderExploreGrid();
+            navigate('home');
+            lucide.createIcons();
+            updateStatsUI();
+            updateLeaderboard();
+        });
 
-                init() {
-                    lucide.createIcons();
-                }
+        function generateInitialPool(count) {
+            for (let i = 0; i < count; i++) {
+                state.characters.push(generateRandomCharacter(i));
             }
+        }
+
+        function generateRandomCharacter(id) {
+            const catIndex = Math.floor(Math.random() * categories.length);
+            const category = categories[catIndex];
+            const name = charNames[Math.floor(Math.random() * charNames.length)];
+            const lastName = charLastNames[Math.floor(Math.random() * charLastNames.length)];
+            const age = Math.floor(Math.random() * 11) + 19; // Age 19 - 30
+            const mockLocation = `${simulatedCities[Math.floor(Math.random() * simulatedCities.length)]} (Simulated)`;
+            const categoryHobbies = hobbies[catIndex];
+            
+            // CC royalty-free placeholder avatars
+            const avatarOptions = [
+                "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80",
+                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
+                "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=300&q=80",
+                "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
+                "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80",
+                "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80",
+                "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=300&q=80",
+                "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=300&q=80"
+            ];
+            const avatar = avatarOptions[id % avatarOptions.length];
+            const isRare = Math.random() > 0.8;
+
+            return {
+                id: `char-${id}`,
+                name: `${name} ${lastName}`,
+                age: age,
+                category: category,
+                hobbies: categoryHobbies,
+                bio: bioPresets[catIndex],
+                location: mockLocation,
+                avatar: avatar,
+                isRare: isRare,
+                isUnlocked: !isRare // Rare characters need simulated invite unlock
+            };
+        }
+
+        /* ==========================================================================
+           ROUTING & VIEW SWITCHING
+           ========================================================================== */
+        function navigate(viewId) {
+            // Hide all views
+            const views = ['home', 'auth', 'explore', 'chat', 'dashboard', 'leaderboard', 'admin'];
+            views.forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                if (el) el.classList.add('hidden');
+            });
+
+            // Show target view
+            const targetEl = document.getElementById(`view-${viewId}`);
+            if (targetEl) targetEl.classList.remove('hidden');
+
+            state.currentView = viewId;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Run updates specific to certain views
+            if (viewId === 'dashboard') {
+                updateDashboardUI();
+            } else if (viewId === 'explore') {
+                renderExploreGrid();
+            } else if (viewId === 'chat') {
+                renderChatList();
+            }
+
+            // Sync Header Navigation Active State
+            document.querySelectorAll('nav button').forEach(btn => {
+                if (btn.innerText.toLowerCase() === viewId.replace('home', 'home').toLowerCase()) {
+                    btn.classList.add('text-indigo-400', 'bg-white/5');
+                } else {
+                    btn.classList.remove('text-indigo-400', 'bg-white/5');
+                }
+            });
+        }
+
+        /* ==========================================================================
+           AUTHENTICATION & USER REGISTRATION
+           ========================================================================== */
+        function handleRegistration(event) {
+            event.preventDefault();
+            const name = document.getElementById('auth-name').value;
+            const city = document.getElementById('auth-city').value;
+            const checkbox = document.getElementById('auth-disclaimer');
+
+            if (!checkbox.checked) {
+                showToast("Please acknowledge the AI Entertainment Disclaimer", "error");
+                return;
+            }
+
+            state.user = {
+                name: name,
+                city: city,
+                level: 1,
+                xp: 150, // Initial sign up bonus
+                achievements: []
+            };
+
+            // Setup Header / UI Changes
+            document.getElementById('auth-btn').classList.add('hidden');
+            document.getElementById('header-user-badge').classList.remove('hidden');
+            
+            updateStatsUI();
+            showToast(`Account Created! Welcome ${name}`, "success");
+            navigate('explore');
+        }
+
+        function triggerAuthEnforcement() {
+            showToast("Account registration required to continue.", "info");
+            navigate('auth');
+        }
+
+        /* ==========================================================================
+           THEME SWITCHING (DARK/LIGHT MODE)
+           ========================================================================== */
+        function toggleTheme() {
+            const html = document.documentElement;
+            const lightIcon = document.getElementById('theme-icon-light');
+            const darkIcon = document.getElementById('theme-icon-dark');
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                lightIcon.classList.remove('hidden');
+                darkIcon.classList.add('hidden');
+                state.isDarkMode = false;
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                lightIcon.classList.add('hidden');
+                darkIcon.classList.remove('hidden');
+                state.isDarkMode = true;
+            }
+        }
+
+        /* ==========================================================================
+           GAMIFICATION ENGINE (XP, REWARDS, LEVELING, BADGES)
+           ========================================================================== */
+        function awardXP(amount) {
+            if (!state.user) return; // Guests do not collect progression telemetry
+            
+            state.user.xp += amount;
+            
+            // Logic: Level Up every 1000 XP points
+            const calculatedLevel = Math.floor(state.user.xp / 1000) + 1;
+            if (calculatedLevel > state.user.level) {
+                state.user.level = calculatedLevel;
+                showToast(`🎉 LEVELED UP! You reached Level ${calculatedLevel}!`, "success");
+            } else {
+                showToast(`+${amount} Simulated XP Added`, "info");
+            }
+            
+            updateStatsUI();
+            updateDashboardUI();
+        }
+
+        function updateStatsUI() {
+            if (!state.user) return;
+            document.getElementById('user-level').innerText = state.user.level;
+            document.getElementById('user-xp').innerText = state.user.xp % 1000;
+        }
+
+        function claimDailyReward() {
+            if (!state.user) {
+                triggerAuthEnforcement();
+                return;
+            }
+            if (state.dailyCheckInClaimed) {
+                showToast("Check-In already claimed today. Returns in 24 hours.", "info");
+                return;
+            }
+            
+            state.dailyCheckInClaimed = true;
+            awardXP(100);
+            
+            const btn = document.getElementById('btn-daily-reward');
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            btn.innerText = "Check-In Claimed Today";
+            showToast("Daily Reward claimed successfully!", "success");
+        }
+
+        /* ==========================================================================
+           PROFILES ENGINE (SEARCH, FILTERS, GPS SIMULATION)
+           ========================================================================== */
+        function renderExploreGrid() {
+            const grid = document.getElementById('profiles-grid');
+            grid.innerHTML = '';
+
+            const filtered = state.characters.filter(char => {
+                const matchCategory = state.filters.category === 'all' || char.category === state.filters.category;
+                const matchLocation = char.location.toLowerCase().includes(state.filters.location.toLowerCase());
+                return matchCategory && matchLocation;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-slate-500 text-sm space-y-2">
+                        <i data-lucide="frown" class="w-8 h-8 mx-auto text-slate-600"></i>
+                        <p>No simulated profiles matching current filters.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            filtered.forEach(char => {
+                const isLocked = char.isRare && !char.isUnlocked;
+                
+                const card = document.createElement('div');
+                card.className = `group rounded-2xl overflow-hidden glass border ${isLocked ? 'border-amber-500/20' : 'border-slate-800'} relative flex flex-col justify-between hover:border-indigo-500/30 transition duration-300`;
+                
+                card.innerHTML = `
+                    <div class="relative overflow-hidden aspect-video">
+                        <img src="${char.avatar}" alt="Fictional character avatar" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        ${char.isRare ? `
+                            <span class="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-amber-500/90 text-[9px] font-extrabold uppercase text-slate-950 tracking-wider flex items-center gap-1">
+                                <i data-lucide="sparkles" class="w-3 h-3"></i> Rare Fictional
+                            </span>
+                        ` : ''}
+                        <span class="absolute bottom-3 left-3 px-2.5 py-0.5 rounded-md bg-slate-950/80 text-[10px] font-bold text-indigo-300 border border-slate-800">
+                            ${char.category}
+                        </span>
+                    </div>
+                    <div class="p-4 flex-grow flex flex-col justify-between space-y-4">
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <h4 class="font-extrabold text-base">${char.name}, <span class="text-slate-400 font-medium">${char.age}</span></h4>
+                            </div>
+                            <p class="text-xs text-slate-400 line-clamp-2 italic">"${char.bio}"</p>
+                        </div>
+
+                        <div class="space-y-3 pt-2 border-t border-slate-900">
+                            <div class="flex items-center justify-between text-[11px] text-slate-400">
+                                <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-rose-500"></i> ${char.location}</span>
+                            </div>
+                            
+                            ${isLocked ? `
+                                <button onclick="triggerUnlockFlow('${char.id}')" class="w-full py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/20 transition flex items-center justify-center gap-1.5">
+                                    <i data-lucide="lock" class="w-3.5 h-3.5"></i> Unlock Profile Pack
+                                </button>
+                            ` : `
+                                <button onclick="initiateChat('${char.id}')" class="w-full py-2.5 rounded-xl bg-indigo-600/10 hover:bg-indigo-600/20 hover:text-white text-indigo-300 text-xs font-bold border border-indigo-600/20 transition flex items-center justify-center gap-1.5">
+                                    <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Chat Simulation
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function setCategoryFilter(category) {
+            state.filters.category = category;
+            
+            // Adjust active CSS badges
+            document.querySelectorAll('.cat-badge').forEach(badge => {
+                if (badge.innerText.toLowerCase() === category.toLowerCase() || (category === 'all' && badge.innerText.toLowerCase() === 'all profiles')) {
+                    badge.className = 'cat-badge px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 transition';
+                } else {
+                    badge.className = 'cat-badge px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition';
+                }
+            });
+
+            renderExploreGrid();
+        }
+
+        function applyFilters() {
+            state.filters.location = document.getElementById('filter-location').value;
+            renderExploreGrid();
+        }
+
+        function toggleGeoSimulation() {
+            const btn = document.getElementById('btn-geo-sim');
+            if (state.isGeoSimulated) {
+                state.isGeoSimulated = false;
+                btn.className = "flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold hover:bg-emerald-500/20 transition";
+                state.filters.location = "";
+                document.getElementById('filter-location').value = "";
+                showToast("GPS simulation deactivated.", "info");
+            } else {
+                state.isGeoSimulated = true;
+                btn.className = "flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 text-xs font-extrabold shadow-lg shadow-emerald-500/25 transition";
+                
+                // Set location simulation filter to a local dynamic parameter
+                const localMock = simulatedCities[Math.floor(Math.random() * simulatedCities.length)];
+                state.filters.location = localMock;
+                document.getElementById('filter-location').value = localMock;
+                showToast(`GPS Simulation Activated: Target Area ${localMock}`, "success");
+            }
+            renderExploreGrid();
+        }
+
+        function triggerUnlockFlow(id) {
+            if (!state.user) {
+                triggerAuthEnforcement();
+                return;
+            }
+            
+            // Unlocking requires standard mock interaction
+            showToast("Loading program rewarded ad placeholder to unlock...", "info");
+            
+            setTimeout(() => {
+                const char = state.characters.find(c => c.id === id);
+                if (char) {
+                    char.isUnlocked = true;
+                    showToast(`🔓 Profile unlocked: Meet ${char.name}!`, "success");
+                    renderExploreGrid();
+                    awardXP(150);
+                }
+            }, 1500);
+        }
+
+        /* ==========================================================================
+           CHAT SIMULATION ENGINE
+           ========================================================================== */
+        function initiateChat(characterId) {
+            if (!state.user) {
+                triggerAuthEnforcement();
+                return;
+            }
+            
+            state.activeChatCharacterId = characterId;
+            navigate('chat');
+            
+            // Build default welcome message if empty
+            if (!state.chatHistory[characterId]) {
+                const char = state.characters.find(c => c.id === characterId);
+                state.chatHistory[characterId] = [
+                    {
+                        sender: 'system',
+                        text: `⚠️ Notice: Simulated conversation initiated with ${char.name}. Fictional personality: ${char.category}.`,
+                        timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                    },
+                    {
+                        sender: 'bot',
+                        text: `Hey! I'm ${char.name}. ${char.bio}`,
+                        timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                    }
+                ];
+            }
+
+            renderChatScreen();
+        }
+
+        function startInstantChat() {
+            // Initiate a conversation with Clara Chen directly
+            const clara = state.characters[0];
+            initiateChat(clara.id);
+        }
+
+        function renderChatList() {
+            const list = document.getElementById('active-chats-list');
+            list.innerHTML = '';
+
+            const activeIds = Object.keys(state.chatHistory);
+            if (activeIds.length === 0) {
+                list.innerHTML = `
+                    <div class="p-4 text-center text-xs text-slate-500">
+                        No ongoing simulated chats. Find friends above.
+                    </div>
+                `;
+                return;
+            }
+
+            activeIds.forEach(id => {
+                const char = state.characters.find(c => c.id === id);
+                if (!char) return;
+
+                const activeBtn = document.createElement('button');
+                activeBtn.onclick = () => initiateChat(id);
+                activeBtn.className = `w-full p-3 flex items-center gap-3 rounded-xl hover:bg-white/5 transition text-left ${state.activeChatCharacterId === id ? 'bg-indigo-500/10 border border-indigo-500/20' : ''}`;
+                activeBtn.innerHTML = `
+                    <img src="${char.avatar}" alt="" class="w-8 h-8 rounded-full object-cover shrink-0">
+                    <div class="overflow-hidden">
+                        <h4 class="text-xs font-bold text-slate-200 truncate">${char.name}</h4>
+                        <span class="text-[9px] text-indigo-400 uppercase tracking-wider font-semibold">${char.category}</span>
+                    </div>
+                `;
+                list.appendChild(activeBtn);
+            });
+        }
+
+        function renderChatScreen() {
+            const char = state.characters.find(c => c.id === state.activeChatCharacterId);
+            if (!char) return;
+
+            // Update Headers
+            document.getElementById('chat-header-img').src = char.avatar;
+            document.getElementById('chat-header-name').innerText = char.name;
+            document.getElementById('chat-header-loc').innerHTML = `<i data-lucide="map-pin" class="w-3.5 h-3.5 text-rose-500 shrink-0"></i> ${char.location}`;
+            
+            const badge = document.getElementById('chat-header-badge');
+            badge.innerText = char.category;
+
+            // Render Messages
+            const messagesScreen = document.getElementById('chat-messages-screen');
+            messagesScreen.innerHTML = '';
+
+            const history = state.chatHistory[state.activeChatCharacterId] || [];
+            history.forEach(msg => {
+                const row = document.createElement('div');
+                
+                if (msg.sender === 'system') {
+                    row.className = 'flex justify-center';
+                    row.innerHTML = `<span class="bg-indigo-500/5 border border-indigo-500/10 text-indigo-400 text-[10px] px-3 py-1 rounded-full text-center leading-normal max-w-sm">${msg.text}</span>`;
+                } else if (msg.sender === 'bot') {
+                    row.className = 'flex justify-start items-end gap-2.5';
+                    row.innerHTML = `
+                        <img src="${char.avatar}" alt="" class="w-7 h-7 rounded-full object-cover shrink-0">
+                        <div class="max-w-[70%] space-y-1">
+                            <div class="bg-slate-900 border border-slate-800 text-slate-200 text-xs px-3.5 py-2.5 rounded-2xl rounded-bl-none leading-relaxed shadow-sm">
+                                ${msg.text}
+                            </div>
+                            <span class="text-[9px] text-slate-500 px-1 block">${msg.timestamp}</span>
+                        </div>
+                    `;
+                } else {
+                    row.className = 'flex justify-end items-end gap-2.5';
+                    row.innerHTML = `
+                        <div class="max-w-[70%] space-y-1 text-right">
+                            <div class="bg-gradient-to-tr from-indigo-600 to-purple-600 text-white text-xs px-3.5 py-2.5 rounded-2xl rounded-br-none leading-relaxed shadow-md shadow-indigo-600/5">
+                                ${msg.text}
+                            </div>
+                            <span class="text-[9px] text-slate-500 px-1 block">${msg.timestamp}</span>
+                        </div>
+                    `;
+                }
+                messagesScreen.appendChild(row);
+            });
+
+            // Scroll to bottom
+            messagesScreen.scrollTop = messagesScreen.scrollHeight;
+            lucide.createIcons();
+        }
+
+        function handleSendMessage(event) {
+            event.preventDefault();
+            const input = document.getElementById('chat-input-field');
+            const val = input.value.trim();
+            if (!val || !state.activeChatCharacterId) return;
+
+            // Insert human message
+            const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            state.chatHistory[state.activeChatCharacterId].push({
+                sender: 'user',
+                text: val,
+                timestamp: timestamp
+            });
+
+            input.value = '';
+            renderChatScreen();
+            awardXP(25); // Award micro XP for interactive chat simulation
+
+            // Trigger Mock Bot Reply
+            simulateBotTyping();
+        }
+
+        function simulateBotTyping() {
+            const char = state.characters.find(c => c.id === state.activeChatCharacterId);
+            const indicator = document.getElementById('chat-typing-indicator');
+            document.getElementById('typing-name').innerText = char.name;
+            indicator.classList.remove('hidden');
+
+            // Scroll down to keep indicator in perspective
+            const screen = document.getElementById('chat-messages-screen');
+            screen.scrollTop = screen.scrollHeight;
+
+            // Delay simulating AI backend processing (1.5 - 2.5 seconds)
+            setTimeout(() => {
+                indicator.classList.add('hidden');
+                
+                // Fetch random preset based on profile fictional archetype
+                const array = responseTemplates[char.category] || responseTemplates.Friendly;
+                const replyText = array[Math.floor(Math.random() * array.length)];
+                
+                const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                state.chatHistory[state.activeChatCharacterId].push({
+                    sender: 'bot',
+                    text: replyText,
+                    timestamp: timestamp
+                });
+
+                renderChatScreen();
+            }, 1800);
+        }
+
+        /* ==========================================================================
+           USER DASHBOARD & PROGRESSION
+           ========================================================================== */
+        function updateDashboardUI() {
+            if (!state.user) {
+                // Keep UI synced for visitor overview
+                document.getElementById('dash-username').innerText = "Guest User";
+                document.getElementById('dash-initial').innerText = "G";
+                document.getElementById('dash-stat-chats').innerText = "0";
+                document.getElementById('dash-stat-unlocked').innerText = "0";
+                document.getElementById('dash-stat-invites').innerText = "0";
+                return;
+            }
+
+            document.getElementById('dash-username').innerText = state.user.name;
+            document.getElementById('dash-initial').innerText = state.user.name.charAt(0).toUpperCase();
+            document.getElementById('dash-level').innerText = state.user.level;
+            
+            // Progression values
+            const xpThisLevel = state.user.xp % 1000;
+            document.getElementById('dash-xp').innerText = xpThisLevel;
+            const progressPct = (xpThisLevel / 1000) * 100;
+            document.getElementById('dash-xp-progress').style.width = `${progressPct}%`;
+
+            // Active stat tallies
+            const chatsTally = Object.keys(state.chatHistory).length;
+            document.getElementById('dash-stat-chats').innerText = chatsTally;
+
+            const unlockedTally = state.characters.filter(c => c.isUnlocked).length;
+            document.getElementById('dash-stat-unlocked').innerText = unlockedTally;
+
+            document.getElementById('dash-stat-invites').innerText = state.invitedCount;
+
+            renderAchievements();
+        }
+
+        function renderAchievements() {
+            const container = document.getElementById('badges-container');
+            container.innerHTML = '';
+
+            const badgeCriteria = [
+                { name: "Initiator", desc: "Start 1 chat", icon: "message-circle", unlocked: Object.keys(state.chatHistory).length >= 1 },
+                { name: "Talkative", desc: "Earn 500 XP", icon: "zap", unlocked: state.user && state.user.xp >= 500 },
+                { name: "Networker", desc: "1 Invited user", icon: "user-plus", unlocked: state.invitedCount >= 1 },
+                { name: "Super User", desc: "Reach Level 3", icon: "award", unlocked: state.user && state.user.level >= 3 }
+            ];
+
+            badgeCriteria.forEach(badge => {
+                const card = document.createElement('div');
+                card.className = `p-3.5 rounded-2xl flex flex-col items-center justify-center text-center space-y-1 border ${badge.unlocked ? 'glass border-indigo-500/20 text-indigo-300' : 'bg-slate-950/20 border-slate-900 text-slate-600'}`;
+                
+                card.innerHTML = `
+                    <i data-lucide="${badge.icon}" class="w-6 h-6 mb-1 ${badge.unlocked ? 'text-indigo-400' : 'text-slate-700'}"></i>
+                    <span class="text-xs font-bold leading-none block">${badge.name}</span>
+                    <span class="text-[9px] text-slate-500">${badge.desc}</span>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function simulateInviteShare() {
+            if (!state.user) {
+                triggerAuthEnforcement();
+                return;
+            }
+            
+            // Simulates copying dynamic clipboard hook and successfully triggering micro-rewards
+            showToast("Fictional invite link simulated! Sharing code.", "success");
+            
+            setTimeout(() => {
+                state.invitedCount += 1;
+                showToast("🎉 Invite conversion simulated! Achievement parameters updated.", "success");
+                
+                // Unlock first locked character found as a milestone award
+                const nextLocked = state.characters.find(c => !c.isUnlocked);
+                if (nextLocked) {
+                    nextLocked.isUnlocked = true;
+                    showToast(`🔓 Unlocked ${nextLocked.name} for your contribution!`, "success");
+                }
+
+                awardXP(300);
+                updateDashboardUI();
+            }, 1500);
+        }
+
+        /* ==========================================================================
+           LEADERBOARD COMPONENT
+           ========================================================================== */
+        function updateLeaderboard() {
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = '';
+
+            const mockRankers = [
+                { rank: 1, name: "NeonRanger", xp: 8400, level: 9 },
+                { rank: 2, name: "ZenScribe", xp: 6200, level: 7 },
+                { rank: 3, name: "PixelWanderer", xp: 5100, level: 6 },
+                { rank: 4, name: "HackerOne", xp: 3200, level: 4 }
+            ];
+
+            // If user is logged in, append them dynamically based on level
+            if (state.user) {
+                mockRankers.push({ rank: 5, name: `${state.user.name} (You)`, xp: state.user.xp, level: state.user.level });
+            }
+
+            // Sort dynamically
+            mockRankers.sort((a, b) => b.xp - a.xp);
+
+            mockRankers.forEach((user, idx) => {
+                const el = document.createElement('div');
+                el.className = "flex items-center justify-between p-4 hover:bg-white/5 transition";
+                el.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="w-6 h-6 text-xs font-extrabold flex items-center justify-center rounded-full ${idx === 0 ? 'bg-amber-400 text-slate-950' : idx === 1 ? 'bg-slate-300 text-slate-950' : 'bg-slate-800 text-slate-300'}">${idx + 1}</span>
+                        <span class="text-sm font-bold text-slate-200">${user.name}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-indigo-400 font-bold">Level ${user.level}</span>
+                        <span class="text-xs text-slate-500 font-medium">(${user.xp} XP)</span>
+                    </div>
+                `;
+                list.appendChild(el);
+            });
+        }
+
+        /* ==========================================================================
+           ADMIN PANEL SIMULATION & UTILITIES
+           ========================================================================== */
+        function adminSpawnCharacter() {
+            const initialLen = state.characters.length;
+            for (let i = 0; i < 10; i++) {
+                state.characters.push(generateRandomCharacter(initialLen + i));
+            }
+            showToast("Successfully generated 10 new fictional profiles into global pool", "success");
+            renderExploreGrid();
+        }
+
+        function toggleMockPremiumStatus() {
+            state.adFree = !state.adFree;
+            showToast(state.adFree ? "Premium Membership Active (Mock Ad Removal)" : "Standard Tier Active (Programmatic Ads)", "info");
+        }
+
+        function simulateRewardedAd() {
+            showToast("Playing 5-second simulated rewarded video container...", "info");
+            setTimeout(() => {
+                showToast("🏆 Rewarded Video Completed! Awarded 500 XP.", "success");
+                awardXP(500);
+            }, 3000);
+        }
+
+        /* ==========================================================================
+           TOAST NOTIFICATION ENGINE
+           ========================================================================== */
+        function showToast(message, type = "info") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            // Color map based on notification vectors
+            const bgClass = type === 'success' ? 'bg-emerald-500 border-emerald-600 text-slate-950 font-bold' : 
+                            type === 'error' ? 'bg-rose-600 border-rose-700 text-white' : 
+                            'bg-indigo-600 border-indigo-700 text-white';
+
+            toast.className = `flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-xl ${bgClass} transform translate-y-2 opacity-0 transition-all duration-300 text-xs`;
+            
+            const icon = type === 'success' ? 'check-circle' : 'info';
+            toast.innerHTML = `
+                <i data-lucide="${icon}" class="w-4 h-4 shrink-0"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            // Animate In
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 50);
+
+            // Animate Out & Destroy
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3500);
         }
     </script>
 </body>
