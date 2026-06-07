@@ -1,9 +1,4 @@
-# Virtual Friends 🌟
 
-Virtual Friends is an entertainment platform where users can discover and chat with AI-generated fictional characters.
-
-> ⚠️ Disclaimer:
-> All profiles on this platform are AI-generated fictional characters created for entertainment purposes only. They are not real people.
 
 ## Features
 
